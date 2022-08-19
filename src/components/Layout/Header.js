@@ -4,13 +4,13 @@ import clasess from './Header.module.css';
 import HeaderCardButton from './HeaderCardButton';
 import mealsimgae from '../../assets/meals.jpg';
 
-const Header = () => {
+const Header = (props) => {
   return (
     <Fragment>
       <header className={clasess.header}>
         <h1>React Foods</h1>
         <div></div>
-        <HeaderCardButton />
+        <HeaderCardButton onClick={props.onShowCart} />
         <div></div>
       </header>
       <div className={clasess['main-image']}>
