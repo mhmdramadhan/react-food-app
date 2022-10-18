@@ -1,12 +1,14 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 
 import Modal from '../UI/Modal';
 import CartItem from './CartItem';
 import clasess from './Cart.module.css';
 import CartContext from '../../store/cart-context';
+import Checkout from './Checkout';
 
 const Cart = (props) => {
   const cartCtx = useContext(CartContext);
+  const [hasOrder, setHasOrder] = useState(false);
 
   // const totalAmount = `$${cartCtx.totalAmount.toFixed(2)}`;
   const totalAmount = new Intl.NumberFormat('id-ID', {
@@ -21,7 +23,21 @@ const Cart = (props) => {
   };
 
   const cartItemAddHandler = (item) => {
-    cartCtx.addItem({...item, amount: 1})
+    cartCtx.addItem({ ...item, amount: 1 });
+  };
+
+  const orderHandler = () => {
+    setHasOrder(true);
+  };
+
+  const submitOrderHandler = (userData) => {
+    fetch('https://react-http-13702-default-rtdb.firebaseio.com/orders.json', {
+      method: 'POST',
+      body: JSON.stringify({
+        user: userData,
+        ordredItems: cartCtx.items,
+      }),
+    });
   };
 
   const cartItems = (
@@ -38,6 +54,20 @@ const Cart = (props) => {
       ))}
     </ul>
   );
+
+  const modalActions = (
+    <div className={clasess.actions}>
+      <button className={clasess['button--alt']} onClick={props.onClose}>
+        Close
+      </button>
+      {hasItems && (
+        <button className={clasess.button} onClick={orderHandler}>
+          Order
+        </button>
+      )}
+    </div>
+  );
+
   return (
     <Modal onClose={props.onClose}>
       {cartItems}
@@ -45,12 +75,10 @@ const Cart = (props) => {
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
-      <div className={clasess.actions}>
-        <button className={clasess['button--alt']} onClick={props.onClose}>
-          Close
-        </button>
-        {hasItems && <button className={clasess.button}>Order</button>}
-      </div>
+      {hasOrder && (
+        <Checkout onConfirm={submitOrderHandler} onCancel={props.onClose} />
+      )}
+      {!hasOrder && modalActions}
     </Modal>
   );
 };
